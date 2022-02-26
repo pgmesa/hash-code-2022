@@ -23,7 +23,7 @@ Notice that the algorithm doesn't take into account some important aspects to fu
 
 ## Algorithm Scores
 We compare our results against those achieved by the rank 1 team in the classification.
-| Input File | Our Score | Score after Optimizing | Rank 1 team score |
+| Input File | Our Score | Score after Optimizing | Rank 1 team Score |
 |     :---:      |  :---:   | :---: | :---: |  
 | a_an_example.in.txt  |  20  | 20 | 33 |
 | b_better_start_small.in.txt  | 310.676 | 310.676 | 969.087 |
