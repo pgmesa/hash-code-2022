@@ -4,7 +4,7 @@ from pathlib import Path
 from zipfile import ZipFile
 
 submission_path = Path('submission.zip').resolve()
-files_to_submit = ['solver.py', 'classes.py']
+files_to_submit = ['solver.py', 'classes.py', 'requirements.txt']
 
 def mkzip():
     if os.path.exists(submission_path):

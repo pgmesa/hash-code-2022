@@ -1,7 +1,12 @@
 
 # Built-in
 import os
+import copy
+from math import floor
+from time import time
 from pathlib import Path
+
+from tqdm import tqdm
 
 # Custom
 from classes import Project, Contributor
@@ -25,25 +30,43 @@ contributors = []; projects = []
 # Solutions vars
 solutions = {}
 
-def main():
-    for i, inp in enumerate(inputs):
-        if i != 0 and i != 1 and i != 3: continue
-        print("+ Solving:", inp)
-        read_input(input_dir_path/inp)
-        filter_buffers()
-        solve()
-        write_output(out_dir_path/(inp.replace("in", "out")))
-        reset()
-        print("Done!!")
-        
+# --------------------------------------------------------------------
+# ------ UTILS
+def timer(func):
+    def f(*a, **ka):
+        t0 = time()
+        func(*a,**ka)
+        tf = time()
+        total_secs = round(tf-t0, 2)
+        if total_secs < 60:
+            print(f"\nElapsed time: {total_secs} s")
+        else: 
+            mins = floor(total_secs/60)
+            secs = int(total_secs - mins*60)
+            print(f"\nElapsed time: {mins} min {secs} s")
+    return f
+
 def _print_obj_list(array):
     for obj in array:
         print(obj)
         
+# ------ Problem solving
+def main():
+    for i, inp in enumerate(inputs):
+        print("+ Solving:", inp)
+        read_input(input_dir_path/inp)
+        solve()
+        write_output(out_dir_path/(inp.replace(".in.", ".out.")))
+        reset()
+        print("Done!!")
+        
+@timer       
 def solve():
     global projects, contributors
-    day = 0; current_projects = {}
+    day = 0; current_projects = {}; deathlines = set()
+    print("Calculating projects to assign...(it can take a few minutes)")
     while True:
+        # print("Day:", day)
         # Comprobamos si hay projectos acabados
         delete_ps = []
         for p, pinfo in current_projects.items():
@@ -61,69 +84,80 @@ def solve():
         for pp in projects:
             if pp.can_start(team=contributors):
                 posible_projects.append(pp)
-                
+        if day == 0:
+            projects = copy.copy(posible_projects)
+            pbar_p = tqdm(projects, desc="Projects to Assign", unit=" projects", position=0, leave=None)
+        # Si hay projectos que se puedan empezar vamos asignando hasta que no se puedan mas        
         if len(posible_projects) != 0:
             # Hayamos el ratio de los proyectos
-            scores_r = []
-            for p in posible_projects:
+            def calc_ratio(p:Project) -> int:
                 minus = day - (p.bb + p.duration)
                 if minus < 0: minus = 0
                 actual_score = (p.score - minus)/p.duration
                 if actual_score < 0: actual_score = 0
-                scores_r.append(actual_score)
+                return actual_score
             
-            # Añadidos contribuidores a trabajar en el proyecto
-            max_sc = max(scores_r)
-            if max_sc == 0: 
-                # No merece la pena seguir haciendo proyectos
-                break
-            index = scores_r.index(max_sc)
-            p_chosen = posible_projects[index]; solutions[p_chosen] = []
-            # Asignamos los contribuidores al proyecto
-            for r in p_chosen.roles:
-                for c in contributors:
-                    if c.fits_role(r) and c not in solutions[p_chosen]:
-                        solutions[p_chosen].append(c)
-                        break
-            for c in solutions[p_chosen]:
-                contributors.remove(c)
-            # Añadimos el proyecto a los proyectos actuales
-            current_projects[p_chosen] = {
-                'contributors': solutions[p_chosen],
-                'deathline': day + p_chosen.duration
-            }
-            projects.remove(p_chosen)
-        elif len(current_projects) == 0:
-            break
-        day += 1
-        if len(projects) == 0:
+            scores_r = []       
+            for p in posible_projects:
+                scores_r.append(calc_ratio(p))
+                
+            while len(posible_projects) != 0:                
+                # Añadidos contribuidores a trabajar en el proyecto
+                max_sc = max(scores_r)
+                s_msg = f"Projects score ration -> {round(max_sc,2)}"
+                if day == 0:
+                    pbar_s = tqdm(desc=s_msg, position=1, leave=False)
+                pbar_s.set_description(s_msg); pbar_s.refresh()
+                if max_sc == 0: 
+                    # No merece la pena seguir haciendo proyectos
+                    pbar_p.close(); pbar_s.close()
+                    print("\n[!] Exiting: All project scores now worth <= 0 points")
+                    return
+                index = scores_r.index(max_sc)
+                p_chosen = posible_projects[index]; solutions[p_chosen] = []
+                pbar_p.update(1)
+                # Asignamos los contribuidores al proyecto
+                for r in p_chosen.roles:
+                    for c in contributors:
+                        if c.fits_role(r) and c not in solutions[p_chosen]:
+                            solutions[p_chosen].append(c)
+                            break
+                for c in solutions[p_chosen]:
+                    contributors.remove(c)
+                # Añadimos el proyecto a los proyectos actuales
+                deathline = day + p_chosen.duration
+                current_projects[p_chosen] = {
+                    'contributors': solutions[p_chosen],
+                    'deathline': deathline
+                }
+                deathlines.add(deathline)
+                projects.remove(p_chosen); posible_projects.remove(p_chosen)
+                # Vemos si hay mas disponibles ahora que se han eliminado contribuidores
+                posible_projects2 = []; scores_r = []
+                for pp in posible_projects:
+                    if pp.can_start(team=contributors):
+                        posible_projects2.append(pp)
+                        scores_r.append(calc_ratio(pp))
+                posible_projects = posible_projects2
+        elif len(projects) == 0:
             # Ya hemos asignado todos los proyectos 
             break
-        
-def filter_buffers():
-    global projects, contributors
-    # Descartamos los projectos que tengan una habilidad que ningun contribuidor tenga
-    valid_projects = []
-    for p in projects:
-        roles = p.roles; not_roles = {}; remove_p = False
-        for r in roles:
-            not_roles[r] = 0
-            for c in contributors:
-                if not c.fits_role(r):
-                    not_roles[r] += 1
-        for r, num in not_roles.items():
-            if num == len(contributors):
-                remove_p = True
-        if not remove_p:
-            valid_projects.append(p)
-    # Eliminamos los contribuidores que no tengan skills
-    valid_c = []
-    for c in contributors:
-        if c.has_skills():
-            valid_c.append(c)
-    # Reemplazamos los buffers globales
-    contributors = valid_c
-    projects = valid_projects
+        # Avanzamos hasta que se finalice la primera deathline de los proyectos en curso para liberar 
+        # contribuidores y volver a chequear si hay proyectos disponibles 
+        forward = min(deathlines); deathlines.remove(forward)
+        for p, pinfo in current_projects.items():
+            dl = pinfo["deathline"]
+            if dl <= forward:
+                delete_ps.append(p)
+                contrib = pinfo["contributors"]
+                for c in contrib:
+                    contributors.append(c)
+        for p in delete_ps:
+            current_projects.pop(p)
+        day = forward
+        # print("Remaining Projects:", len(projects))
+        # print("Ongoing Projects:", len(current_projects))
+        # print("Assigned Projects:", len(solutions))
     
 def write_output(output_path:Path) -> None:
     output = f"{len(solutions)}\n"

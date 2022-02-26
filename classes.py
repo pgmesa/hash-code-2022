@@ -10,7 +10,7 @@ class Contributor:
         self.skills = []
         
     def __str__(self) -> str:
-        return f"{self.name}\n{self.skills}"
+        return f"{self.name} | Num-Skills = {len(self.skills)}"
         
     def add_skill(self, skill_name:str, level:int) -> None:
         skill = Skill(skill_name, level)
@@ -41,7 +41,7 @@ class Project:
         self.roles = []
         
     def __str__(self) -> str:
-        return f"{self.name} {self.duration} {self.score} {self.bb} {self.numc}\n{self.roles}"
+        return f"{self.name} {self.duration} {self.score} {self.bb} {self.numc}"
     
     def add_role(self, role_name:str, level:int) -> None:
         role = Skill(role_name, level)
