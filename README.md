@@ -1,11 +1,15 @@
 # Hash Code 2022
 
+Program made in the 2022 Hash Code Google competition qualification round (our first coding challenge).
+
+Read the problem and try your solution (this link might become unreachable when the practice mode ends): https://codingcompetitions.withgoogle.com/hashcode/round/00000000008caae7/000000000098afc8 
+
 Run 'solver.py' to solve the inputs of the challege. We have only managed to solve 3/6 files:
 - a_an_example.in.txt
 - b_better_start_small.in.txt
 - d_dense_schedule.in.txt
 
-When trying to solve the other 3 files, our algorithm remains indefinitely solving (there must be some error), therefore, by default only the inputs (a, b and d) are resolved when executing the program and the solutions will be created in a directory called 'solutions ' (comment out line 30 of 'solver.py' to try to solve all of them). Notice that our algorithm also doesn't take into account some important aspects to fully develop a complete solution (e.g. we didn't have time to add the mentoring feature).
+When trying to solve the other 3 files, our algorithm remains indefinitely solving (there must be some error), therefore, by default only the inputs (a, b and d) are solved when executing the program and the solutions will be created in a directory called 'solutions ' (comment out line 30 of 'solver.py' to try to solve all of them). Notice that our algorithm doesn't take into account some important aspects to fully develop a complete solution (e.g. we didn't have time to add the mentoring feature).
 
 For the program to execute custom input files that you have created, set the 'DEBUG' variable to True and create the 'own_inputs' directory and put the files you want to be solved there (the solutions will be saved in a directory called 'own_solutions')
 
