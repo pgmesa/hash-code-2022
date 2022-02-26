@@ -10,14 +10,15 @@ def mkzip():
     if os.path.exists(submission_path):
         print("Deleting last submission...")
         os.remove(submission_path)
-    print("Creating submission .zip file...")
+    print("Creating submission '.zip' file...")
     zipObj = ZipFile(submission_path, 'w')
     # Add the files
     for file in files_to_submit:
+        print(f"- Adding '{file}'")
         zipObj.write(file)
     # Close the Zip file
     zipObj.close()
-    print(f"Done!! -> {submission_path}")
+    print(f"Done!! -> '{submission_path}'")
 
 if __name__ == "__main__":
     mkzip()
