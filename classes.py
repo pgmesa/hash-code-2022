@@ -4,6 +4,9 @@ class Skill:
         self.name = name
         self.level = level
         
+    def __str__(self) -> str:
+        return f"Name: {self.name} | level: {self.level}"
+        
 class Contributor:
     def __init__(self, name:str) -> None:
         self.name = name
@@ -30,6 +33,17 @@ class Contributor:
             if skill.level != 0:
                 return True
         return False
+    
+    def get_skill(self, skill_name:str) -> Skill:
+        for sk in self.skills:
+            if sk.name == skill_name:
+                return sk
+    
+    def level_up_skill(self, skill_name:str):
+        for sk in self.skills:
+            if sk.name == skill_name:
+                sk.level += 1
+                break
 
 class Project:
     def __init__(self, name:str, duration:int, score:int, best_before:int, numc:int) -> None:
@@ -38,6 +52,7 @@ class Project:
         self.score = score
         self.bb = best_before
         self.numc = numc
+        self.start_date = None
         self.roles = []
         
     def __str__(self) -> str:
@@ -67,4 +82,9 @@ class Project:
         if len(roles_taken) == self.get_num_roles():
             return True
         return False
+    
+    def start(self, date_num:int) -> None:
+        if self.start_date is not None:
+            print("2 inits")
+        self.start_date = date_num
 
