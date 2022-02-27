@@ -19,7 +19,7 @@ In the practice mode I made some changes two days later (26 of february) to opti
 - e_exceptional_skills.in.txt -> t=5 min 45 s
 - f_find_great_mentors.in.txt -> t=7 min 52 s
 
-Notice that the algorithm doesn't take into account some important aspects to fully develop a complete solution (e.g. we didn't have time to add the mentoring feature).
+Notice that the algorithm doesn't take into account a few important aspects to fully develop a complete solution (e.g. we didn't have time to add the mentoring feature).
 
 ## Algorithm Scores
 We compare our results against those achieved by the rank 1 team in the classification.
